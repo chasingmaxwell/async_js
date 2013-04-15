@@ -12,7 +12,7 @@
  * @param array $fade
  *   An array of jQuery selectors which correspond to elements on the page
  *   to fadeIn after a specified timeout and in unison. The fadeIn effect
- *   will be applied universely to all elements defined in this way on a
+ *   will be applied universally to all elements defined in this way on a
  *   single page.
  *   
  * @see async_js_js_alter()
