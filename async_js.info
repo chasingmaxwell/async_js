@@ -1,0 +1,3 @@
+name = Async JS
+description = Asynchronously load JavaScript after page load.
+core = 7.x
