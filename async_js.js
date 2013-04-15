@@ -60,7 +60,7 @@
           s.onload = s.onreadystatechange = function() {
             var rs = this.readyState;
             if (rs && rs != 'complete' && rs != 'loaded') {
-            	return;
+              return;
             }
             try{
               if (script.callback != undefined && $.isFunction(window[async_js.finalCallback])) {
