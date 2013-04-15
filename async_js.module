@@ -1,25 +1,29 @@
-<?php 
+<?php
 
 /**
- * Keep track of scripts to be loaded asynchronously and provide a slimmer 
- * alternative to drupal_add_js() for cases where it isn't necessary.
- * 
+ * @file
+ * Queue JavaScript files to be loaded asynchronously.
+ */
+
+/**
+ * Keep track of scripts to be loaded asynchronously and provide a slimmer alternative to drupal_add_js() for cases where it isn't necessary.
+ *
  * @param string $src
  *   The path to the file relative to base_path().
  * @param string $callback
- *   The name of a javascript function in the global scope which will be 
+ *   The name of a javascript function in the global scope which will be
  *   run once this particular script is finished loading.
  * @param array $fade
  *   An array of jQuery selectors which correspond to elements on the page
  *   to fadeIn after a specified timeout and in unison. The fadeIn effect
  *   will be applied universally to all elements defined in this way on a
  *   single page.
- *   
+ *
  * @see async_js_js_alter()
  */
 function add_async_js($src = NULL, $callback = NULL, $fade = array()) {
   $javascript = &drupal_static(__FUNCTION__, array());
-  
+
   if (!empty($src)) {
     if (empty($javascript[$src])) {
       $javascript[$src] = array('data' => $src);
@@ -31,20 +35,17 @@ function add_async_js($src = NULL, $callback = NULL, $fade = array()) {
       $javascript[$src]['fade'] = $fade;
     }
   }
-  
+
   return $javascript;
 }
 
 /**
  * Implements hook_js_alter().
- * 
- * @param array $javascript
- *   An array of all JavaScript being presented on the page.
- *   
- * @see async_js_js_alter()
+ *
+ * @see add_async_js()
  */
 function async_js_js_alter(&$javascript) {
-  
+
   // Add any scripts to be loaded asynchronously.
   foreach ($javascript as $key => $script) {
     if (!empty($script['async_js']) && $script['async_js']) {
@@ -54,41 +55,41 @@ function async_js_js_alter(&$javascript) {
       unset($javascript[$key]);
     }
   }
-  
+
   // Retrieve all scripts to be loaded asynchronously.
   $async_js = add_async_js();
-  
+
   if (!empty($async_js)) {
-    
+
     // Get variables necessary for building the file url.
     $default_query_string = variable_get('css_js_query_string', '0');
     $js_version_string = variable_get('drupal_js_version_query_string', 'v=');
-    
+
     // Build settings object.
     $settings = array();
     $javascript['settings']['data'][]['async_js'] = &$settings;
     foreach ($async_js as $script) {
-      
+
       // Initialize variables.
       $query_string = empty($script['version']) ? $default_query_string : $js_version_string . $script['version'];
       $query_string_separator = (strpos($script['data'], '?') !== FALSE) ? '&' : '?';
       $url = file_create_url($script['data']) . $query_string_separator . ($script['cache'] ? $query_string : REQUEST_TIME);
       $callback = !empty($script['callback']) ? $script['callback'] : NULL;
       $fade = !empty($script['fade']) ? $script['fade'] : array();
-      
+
       // Add file to script list.
       $settings['javascript'][] = array(
         'data' => $url,
         'callback' => $callback,
         'fade' => $fade,
       );
-      
+
     }
-    
+
     // Add additional settings.
     $settings['timeout'] = variable_get('async_js_timeout', 1000);
     $settings['finalCallback'] = variable_get('async_js_final_callback', '');
-    
+
     // Add our own script.
     $data = drupal_get_path('module', 'async_js') . '/async_js.js';
     $javascript[$data] = drupal_js_defaults($data);

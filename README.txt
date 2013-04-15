@@ -27,8 +27,8 @@ drupal_add_js(), gets you the same result, and may be a touch faster.
 In addition to loading scripts asynchronously, this module includes the
 following functionality:
 
-- Callback functions: Specify a callback function to be fired once the script has
-loaded. This can be done either by specifying "async_callback" =>
+- Callback functions: Specify a callback function to be fired once the script 
+has loaded. This can be done either by specifying "async_callback" =>
 "your_function_name" in drupal_add_js() or with
 add_async_js("path/to/your/script.js", "your_function_name"). Your callback
 function must exist in the global scope.
@@ -56,5 +56,5 @@ callbacks or fade-in effects.
 - Script.JS uses the $script.js library and loads all scripts asynchronously
 rather than allowing you to specify scripts.
 
-- HeadJS uses the HeadJS library and loads all scripts asynchronously rather than
-allowing you to specify scripts.
+- HeadJS uses the HeadJS library and loads all scripts asynchronously rather
+than allowing you to specify scripts.
