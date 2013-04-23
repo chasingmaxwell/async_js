@@ -18,22 +18,25 @@
  *   to fadeIn after a specified timeout and in unison. The fadeIn effect
  *   will be applied universally to all elements defined in this way on a
  *   single page.
+ * @param string $parent
+ *   An id string which corresponds to the id="" attribute of an element on the
+ *   page in which the script should be inserted. If left blank the script will
+ *   be inserted before the first script element.
+ * @param string $type
+ *   The type of JavaScript that is to be added to the page. Allowed values are
+ *   'file' or 'external'. Defaults to 'external'.
  *
  * @see async_js_js_alter()
  */
-function async_js_add_js($src = NULL, $callback = NULL, $fade = array()) {
+function async_js_add_js($src = NULL, $callback = NULL, $fade = array(), $parent = NULL, $type = 'external') {
   $javascript = &drupal_static(__FUNCTION__, array());
 
   if (!empty($src)) {
-    if (empty($javascript[$src])) {
       $javascript[$src] = array('data' => $src);
-    }
-    if (!empty($callback) && empty($javascript[$callback])) {
       $javascript[$src]['callback'] = $callback;
-    }
-    if (!empty($fade) && empty($javascript[$src]['async_fade'])) {
       $javascript[$src]['fade'] = $fade;
-    }
+      $javascript[$src]['parent'] = $parent;
+      $javascript[$src]['type'] = $type;
   }
 
   return $javascript;
@@ -51,7 +54,8 @@ function async_js_js_alter(&$javascript) {
     if (!empty($script['async_js']) && $script['async_js']) {
       $callback = $script['async_callback'] ? $script['async_callback'] : NULL;
       $fade = $script['async_fade'] ? $script['async_fade'] : array();
-      async_js_add_js($script['data'], $callback, $fade);
+      $parent = $script['async_parent'] ? $script['async_parent'] : NULL;
+      async_js_add_js($script['data'], $callback, $fade, $parent, $script['type']);
       unset($javascript[$key]);
     }
   }
@@ -65,9 +69,11 @@ function async_js_js_alter(&$javascript) {
     $default_query_string = variable_get('css_js_query_string', '0');
     $js_version_string = variable_get('drupal_js_version_query_string', 'v=');
 
-    // Build settings object.
+    // Initialize settings object.
     $settings = array();
     $javascript['settings']['data'][]['async_js'] = &$settings;
+
+    // Add settings for each script.
     foreach ($async_js as $script) {
 
       // Initialize variables.
@@ -77,11 +83,22 @@ function async_js_js_alter(&$javascript) {
       $callback = !empty($script['callback']) ? $script['callback'] : NULL;
       $fade = !empty($script['fade']) ? $script['fade'] : array();
 
+      // Build URL.
+      if ($script['type'] != 'external') {
+        $query_string = empty($script['version']) ? $default_query_string : $js_version_string . $script['version'];
+        $query_string_separator = (strpos($script['data'], '?') !== FALSE) ? '&' : '?';
+        $url = file_create_url($script['data']) . $query_string_separator . ($script['cache'] ? $query_string : REQUEST_TIME);
+      }
+      else {
+        $url = file_create_url($script['data']);
+      }
+
       // Add file to script list.
       $settings['javascript'][] = array(
         'data' => $url,
-        'callback' => $callback,
-        'fade' => $fade,
+        'callback' => $script['callback'],
+        'fade' => $script['fade'],
+        'parent' => $script['parent'],
       );
 
     }

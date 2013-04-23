@@ -73,8 +73,12 @@
             } catch (e) {
             }
           }
-          var x = document.getElementsByTagName('script')[0];
-          x.parentNode.insertBefore(s, x);
+          if (script.parent != undefined) {
+            document.getElementById(script.parent).appendChild(s);
+          } else {
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+          }
         })();
 
         // If there are any elements to fade in connected with this script, keep track of them.
