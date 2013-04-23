@@ -28,20 +28,17 @@ In addition to loading scripts asynchronously, this module includes the
 following functionality:
 
 - Callback functions: Specify a callback function to be fired once the script 
-has loaded. This can be done either by specifying "async_callback" =>
-"your_function_name" in drupal_add_js() or with
-async_js_add_js("path/to/your/script.js", "your_function_name"). Your callback
+has loaded. This can be done by adding "async_callback" => "your_function_name"
+to the options array in either drupal_add_js() or async_js_add_js(). The 
 function must exist in the global scope.
 
 - Fade-in effect: When specifying a script to be loaded asynchronously, you can
-specify html elements to fade in after a delay and in unison. This can be done
-either by specifying "async_fade" => array(".array", "#of", ".jQuery",
-"#selectors") in drupal_add_js() or with 
-async_js_add_js("path/to/your/script.js", "your_function_name", array(".array", 
-"#of", ".jQuery", "#selectors")). The default delay is 1 second. This can be 
-changed by editing the conf variable "async_js_timeout". NOTE: The fade-in 
+specify html elements to fade in after a delay and in unison. This can be done 
+by adding "async_fade" => array(".array", "#of", ".jQuery", "#selectors") to
+the options array in either drupal_add_js() or async_js_add_js(). The fade-in 
 effect will be applied universally to all elements defined in this way on a 
-single page.
+single page. The default delay is 1 second. This can be changed by editing the 
+conf variable "async_js_timeout".
 
 - Final callback: You may add a final callback function to be fired after all
 asynchronous scripts have been successfully loaded by editing the
