@@ -27,7 +27,7 @@
  *
  * @see async_js_js_alter()
  */
-function async_js_add_js($src = NULL, $options = array()) {
+function async_js_add_js($src = NULL, array $options = array()) {
   $javascript = &drupal_static(__FUNCTION__, array());
 
   if (!empty($src)) {
