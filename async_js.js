@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Load JavaScript files asynchronously.
+ */
+
 (function($) {
 
   $(window).load(function() {
