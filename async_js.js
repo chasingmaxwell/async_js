@@ -68,7 +68,7 @@
               return;
             }
             try{
-              if (script.callback != undefined && $.isFunction(window[async_js.finalCallback])) {
+              if (script.callback != undefined && $.isFunction(window[script.callback])) {
                 window[script.callback]();
               }
               async_js.loadedScripts++;
