@@ -15,7 +15,7 @@
         for(var i = 0, len = this.length; i < len; ++i) {
           fn.call(scope, this[i], i, this);
         }
-      }
+      };
     }
 
     /**
@@ -24,8 +24,8 @@
     var async_js = $.extend(true, {
 
       // Set defaults.
-      fade: new Array(),
-      javascript: new Array(),
+      fade: [],
+      javascript: [],
       timeout: 1000,
       loadedScripts: 0,
 
@@ -68,7 +68,7 @@
               return;
             }
             try{
-              if (script.callback != undefined && $.isFunction(window[script.callback])) {
+              if (script.callback !== null && $.isFunction(window[script.callback])) {
                 window[script.callback]();
               }
               async_js.loadedScripts++;
@@ -77,8 +77,8 @@
               }
             } catch (e) {
             }
-          }
-          if (script.parent != undefined) {
+          };
+          if (script.parent !== null) {
             document.getElementById(script.parent).appendChild(s);
           } else {
             var x = document.getElementsByTagName('script')[0];
@@ -87,7 +87,7 @@
         })();
 
         // If there are any elements to fade in connected with this script, keep track of them.
-        if (script.fade != undefined && script.fade.length > 0) {
+        if (script.fade.length > 0) {
           script.fade.forEach(function(element, index, array) {
             async_js.fade.push(element);
           });
@@ -101,7 +101,7 @@
      */
     async_js.loadScripts(async_js);
     if (async_js.fade.length > 0) {
-      setTimeout(function() {async_js.delayFade(async_js)}, async_js.timeout);
+      setTimeout(function() {async_js.delayFade(async_js);}, async_js.timeout);
     }
 
   });
