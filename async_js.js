@@ -92,7 +92,7 @@
             async_js.fade.push(element);
           });
         }
-      },
+      }
 
     }, Drupal.settings.async_js);
 
