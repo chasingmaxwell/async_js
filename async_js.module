@@ -11,8 +11,10 @@
  * @param string $src
  *   The path to the file relative to base_path().
  * @param array $options
- *   As associative array of options for each script. The following elements
+ *   An associative array of options for each script. The following elements
  *   affect asynchronous loading functionality:
+ *   -  'type': The type of JavaScript that is to be added to the page.
+ *       Allowed values are 'file' or 'external'. Defaults to 'file'.
  *   -  'async_callback': The name of a javascript function in the global scope
  *       which will be run once this particular script is finished loading.
  *   -  'async_fade': An array of jQuery selectors which correspond to elements
@@ -22,8 +24,8 @@
  *   -  'async_parent': An id string which corresponds to the id="" attribute
  *       of an element on the page in which the script should be inserted. If
  *       left blank the script will be inserted before the first script element.
- *   -  'async_type': The type of JavaScript that is to be added to the page.
- *       Allowed values are 'file' or 'external'. Defaults to 'external'.
+ *   -  'cache': If set to FALSE, the JavaScript file is loaded anew on every
+ *       asynchronous request. Defaults to TRUE.
  *
  * @see async_js_js_alter()
  */
@@ -33,11 +35,11 @@ function async_js_add_js($src = NULL, array $options = array()) {
   if (!empty($src)) {
     // Set default options.
     $options += array(
-      'type' => 'external',
+      'type' => 'file',
       'async_callback' => NULL,
       'async_fade' => array(),
       'async_parent' => NULL,
-      'cache' => FALSE,
+      'cache' => TRUE,
     );
     // Add script to queue.
     $javascript[$src] = array('data' => $src) + $options;
@@ -70,7 +72,7 @@ function async_js_js_alter(&$javascript) {
     $default_query_string = variable_get('css_js_query_string', '0');
     $js_version_string = variable_get('drupal_js_version_query_string', 'v=');
 
-    // Initialize settings object.
+    // Initialize settings array.
     $settings = array();
     $javascript['settings']['data'][]['async_js'] = &$settings;
 
