@@ -108,7 +108,7 @@
             }
           };
           if (script.container !== null) {
-            $(script.container).append(s);
+            $(script.container).get(0).appendChild(s);
           } else {
             var x = document.getElementsByTagName('script')[0];
             x.parentNode.insertBefore(s, x);
