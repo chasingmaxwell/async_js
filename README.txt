@@ -59,12 +59,11 @@ the global scope.
 
 ### Similar modules
 
-- Async script shim is a very similar module for Drupal 8. It does not support
-callbacks or fade-in effects.
+- Async script shim is a similar module for Drupal 8. (https://drupal.org/project/async_script_shim)
 
-- Script.JS uses the $script.js library and loads all scripts asynchronously
-rather than allowing you to specify scripts.
+- Script.JS uses the $script.js library. (https://drupal.org/project/scriptjs)
 
-- HeadJS uses the HeadJS library and loads all scripts asynchronously rather
-than allowing you to specify scripts.
+- LABjs uses the LABjs library. (https://drupal.org/project/labjs)
+
+- Advanced CSS/JS Aggregation. (https://drupal.org/project/advagg)
 
