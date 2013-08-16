@@ -27,6 +27,12 @@ drupal_add_js(), gets you the same result, and may be a touch faster.
 In addition to loading scripts asynchronously, this module includes the
 following functionality:
 
+- Dependencies: Specify dependencies at the individual script level. Simply add
+"async_dependencies" => array("path/to/script1.js", "path/to/script2.js")
+to the options array in either drupal_add_js() or async_js_add_js(). The path
+you use to reference the dependency must correspond exactly to the path used
+to actually load the dependency.
+
 - Callback functions: Specify a callback function to be fired once the script 
 has loaded. This can be done by adding "async_callback" => "your_function_name"
 to the options array in either drupal_add_js() or async_js_add_js(). The 
@@ -56,3 +62,4 @@ rather than allowing you to specify scripts.
 
 - HeadJS uses the HeadJS library and loads all scripts asynchronously rather
 than allowing you to specify scripts.
+

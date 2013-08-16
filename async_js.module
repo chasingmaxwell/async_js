@@ -9,23 +9,27 @@
  * Queue scripts to be loaded asynchronously.
  *
  * @param string $src
- *   The path to the file relative to base_path().
+ *  The path to the file relative to base_path().
  * @param array $options
- *   An associative array of options for each script. The following elements
- *   affect asynchronous loading functionality:
- *   -  'type': The type of JavaScript that is to be added to the page.
- *       Allowed values are 'file' or 'external'. Defaults to 'file'.
- *   -  'async_callback': The name of a javascript function in the global scope
- *       which will be run once this particular script is finished loading.
- *   -  'async_fade': An array of jQuery selectors which correspond to elements
- *       on the page to fadeIn after a specified timeout and in unison. The
- *       fadeIn effect will be applied universally to all elements defined in
- *       this way on a single page.
- *   -  'async_parent': An id string which corresponds to the id="" attribute
- *       of an element on the page in which the script should be inserted. If
- *       left blank the script will be inserted before the first script element.
- *   -  'cache': If set to FALSE, the JavaScript file is loaded anew on every
- *       asynchronous request. Defaults to TRUE.
+ *  An associative array of options for each script. The following elements
+ *  affect asynchronous loading functionality:
+ *  -  'type': The type of JavaScript that is to be added to the page.
+ *      Allowed values are 'file' or 'external'. Defaults to 'file'.
+ *  -  'async_dependencies': An indexed array of scripts which must be loaded
+ *      before the current script. The value of each item in the array must
+ *      correspond exactly to the $src parameter originally used to load the
+ *      dependency.
+ *  -  'async_callback': The name of a javascript function in the global scope
+ *      which will be run once this particular script is finished loading.
+ *  -  'async_fade': An array of jQuery selectors which correspond to elements
+ *      on the page to fadeIn after a specified timeout and in unison. The
+ *      fadeIn effect will be applied universally to all elements defined in
+ *      this way on a single page.
+ *  -  'async_parent': An id string which corresponds to the id="" attribute
+ *      of an element on the page in which the script should be inserted. If
+ *      left blank the script will be inserted before the first script element.
+ *  -  'cache': If set to FALSE, the JavaScript file is loaded anew on every
+ *      asynchronous request. Defaults to TRUE.
  *
  * @see async_js_js_alter()
  */
@@ -36,6 +40,7 @@ function async_js_add_js($src = NULL, array $options = array()) {
     // Set default options.
     $options += array(
       'type' => 'file',
+      'async_dependencies' => array(),
       'async_callback' => NULL,
       'async_fade' => array(),
       'async_parent' => NULL,
@@ -68,9 +73,11 @@ function async_js_js_alter(&$javascript) {
 
   if (!empty($async_js)) {
 
-    // Get variables necessary for building the file url.
-    $default_query_string = variable_get('css_js_query_string', '0');
-    $js_version_string = variable_get('drupal_js_version_query_string', 'v=');
+    // Process dependencies.
+    $async_js = _async_js_process_dependencies($async_js);
+
+    // Build file URLs.
+    $async_js = _async_js_build_urls($async_js);
 
     // Initialize settings array.
     $settings = array();
@@ -79,20 +86,20 @@ function async_js_js_alter(&$javascript) {
     // Add settings for each script.
     foreach ($async_js as $script) {
 
-      // Build URL.
-      if ($script['type'] != 'external') {
-        $query_string = empty($script['version']) ? $default_query_string : $js_version_string . $script['version'];
-        $query_string_separator = (strpos($script['data'], '?') !== FALSE) ? '&' : '?';
-        $script['data'] = file_create_url($script['data']) . $query_string_separator . ($script['cache'] ? $query_string : REQUEST_TIME);
-      }
-
-      // Add file to script list.
-      $settings['javascript'][] = array(
+      // Prep $script for JavaScript.
+      $script = array(
         'data' => $script['data'],
         'callback' => $script['async_callback'],
         'fade' => $script['async_fade'],
         'parent' => $script['async_parent'],
+        'dependencies' => $script['async_dependencies'],
+        'dependents' => $script['async_dependents'],
+        'queued' => FALSE,
+        'loaded' => FALSE,
       );
+
+      // Add file to script list.
+      $settings['javascript'][$script['data']] = $script;
 
     }
 
@@ -105,3 +112,78 @@ function async_js_js_alter(&$javascript) {
     $javascript[$data] = drupal_js_defaults($data);
   }
 }
+
+/**
+ * Prepares script data for actual requests.
+ *
+ * @param array $scripts
+ *  An array of scripts as returned by async_js_add_js().
+ *
+ * @see async_js_js_alter()
+ * @see asumc_js_add_js()
+ */
+function _async_js_build_urls(array $scripts = array()) {
+
+  // Initialize variables necessary for building the file url.
+  $default_query_string = variable_get('css_js_query_string', '0');
+  $js_version_string = variable_get('drupal_js_version_query_string', 'v=');
+
+  // Keep track of any changes we make so we can reference them later when
+  // dealing with dependencies and dependents.
+  $changes = array();
+
+  // Build the urls.
+  foreach ($scripts as &$script) {
+    if ($script['type'] != 'external') {
+      $old_data = $script['data'];
+      $query_string = empty($script['version']) ? $default_query_string : $js_version_string . $script['version'];
+      $query_string_separator = (strpos($script['data'], '?') !== FALSE) ? '&' : '?';
+      $script['data'] = file_create_url($script['data']) . $query_string_separator . ($script['cache'] ? $query_string : REQUEST_TIME);
+      $changes[$old_data] = $script['data'];
+    }
+  }
+
+  // Handle potential dependencies and dependents.
+  foreach ($scripts as &$script) {
+    // Handle potential dependencies.
+    if (!empty($script['async_dependencies'])) {
+      foreach ($script['async_dependencies'] as $key => $dependency) {
+        if (!empty($changes[$dependency])) {
+          $script['async_dependencies'][$key] = $changes[$dependency];
+        }
+      }
+    }
+    // Handle potential dependents.
+    if (!empty($script['async_dependents'])) {
+      foreach ($script['async_dependents'] as $key => $dependent) {
+        if (!empty($changes[$dependent])) {
+          $script['async_dependents'][$key] = $changes[$dependent];
+        }
+      }
+    }
+  }
+
+
+  return $scripts;
+}
+
+/**
+ * Processes script dependencies, creating corresponding dependent references.
+ *
+ * @param array $scripts
+ *  An array of scripts as returned by async_js_add_js().
+ *
+ * @see async_js_js_alter()
+ * @see async_js_add_js()
+ */
+function _async_js_process_dependencies(array $scripts = array()) {
+  foreach ($scripts as $script) {
+    if (!empty($script['async_dependencies'])) {
+      foreach ($script['async_dependencies'] as $dependency) {
+        $scripts[$dependency]['async_dependents'][] = $script['data'];
+      }
+    }
+  }
+  return $scripts;
+}
+

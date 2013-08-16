@@ -25,8 +25,9 @@
 
       // Set defaults.
       fade: [],
-      javascript: [],
+      javascript: {},
       timeout: 1000,
+      totalScripts: 0,
       loadedScripts: 0,
 
       // Callback to be fired when all scripts are loaded.
@@ -46,17 +47,30 @@
 
       // Cycle through all defined scripts and load them.
       loadScripts: function(async_js) {
-        if (async_js.javascript.length > 0) {
-          async_js.javascript.forEach(function(element, index, array) {
-            async_js.loadScript(async_js, element);
-          });
+        for (var script in async_js.javascript) {
+          if (typeof async_js.javascript[script].data !== 'undefined') {
+            async_js.totalScripts++;
+            async_js.loadScript(async_js, async_js.javascript[script]);
+          }
         }
       },
 
       // Load a script asynchronously.
       loadScript: function(async_js, script) {
 
-        // Load it.
+        // If our dependencies are not loaded. Do not continue.
+        if (!async_js.dependenciesLoaded(async_js, script)) {
+          return;
+        }
+
+        // If we've already queued this script for loading, don't do it again.
+        if (script.queued) {
+          return;
+        }
+
+        // This script is officially queued for loading.
+        script.queued = true;
+
         (function() {
           var s = document.createElement('script');
           s.type = 'text/javascript';
@@ -68,13 +82,28 @@
               return;
             }
             try{
+
+              // Register another loaded script.
+              async_js.loadedScripts++;
+              script.loaded = true;
+
+              // If we are supposed to fire a callback when this script loads, do it.
               if (script.callback !== null && $.isFunction(window[script.callback])) {
                 window[script.callback]();
               }
-              async_js.loadedScripts++;
-              if ($.isFunction(window[async_js.finalCallback]) && async_js.loadedScripts == async_js.javascript.length) {
+
+              // If the script has dependents, try to load them.
+              if (typeof script.dependents !== 'undefined' && script.dependents.length) {
+                script.dependents.forEach(function(element, index, array) {
+                  async_js.loadScript(async_js, async_js.javascript[element]);
+                });
+              }
+
+              // If all scripts have been loaded, fire the final callback.
+              if ($.isFunction(window[async_js.finalCallback]) && async_js.loadedScripts == async_js.totalScripts) {
                 window[async_js.finalCallback]();
               }
+
             } catch (e) {
             }
           };
@@ -92,6 +121,18 @@
             async_js.fade.push(element);
           });
         }
+      },
+
+      dependenciesLoaded: function(async_js, script) {
+        var loaded = true;
+        if (script.dependencies.length) {
+          script.dependencies.forEach(function(element, index, array) {
+            if (!async_js.javascript[element].loaded) {
+              loaded = false;
+            }
+          });
+        }
+        return loaded;
       }
 
     }, Drupal.settings.async_js);
@@ -107,3 +148,4 @@
   });
 
 })(jQuery);
+
