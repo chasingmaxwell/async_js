@@ -28,8 +28,6 @@
  *  -  'async_container': A jQuery selector which corresponds to the element on
  *      the page in which the script should be inserted. If left blank, the
  *      script will be inserted before the first script element in the document.
- *      Keep in mind that if your jQuery selector matches multiple elements,
- *      your script will be loaded multiple times.
  *  -  'cache': If set to FALSE, the JavaScript file is loaded anew on every
  *      asynchronous request. Defaults to TRUE.
  *
