@@ -25,9 +25,11 @@
  *      on the page to fadeIn after a specified timeout and in unison. The
  *      fadeIn effect will be applied universally to all elements defined in
  *      this way on a single page.
- *  -  'async_parent': An id string which corresponds to the id="" attribute
- *      of an element on the page in which the script should be inserted. If
- *      left blank the script will be inserted before the first script element.
+ *  -  'async_container': A jQuery selector which corresponds to the element on
+ *      the page in which the script should be inserted. If left blank, the
+ *      script will be inserted before the first script element in the document.
+ *      Keep in mind that if your jQuery selector matches multiple elements,
+ *      your script will be loaded multiple times.
  *  -  'cache': If set to FALSE, the JavaScript file is loaded anew on every
  *      asynchronous request. Defaults to TRUE.
  *
@@ -43,7 +45,7 @@ function async_js_add_js($src = NULL, array $options = array()) {
       'async_dependencies' => array(),
       'async_callback' => NULL,
       'async_fade' => array(),
-      'async_parent' => NULL,
+      'async_container' => NULL,
       'cache' => TRUE,
     );
     // Add script to queue.
@@ -91,7 +93,7 @@ function async_js_js_alter(&$javascript) {
         'data' => $script['data'],
         'callback' => $script['async_callback'],
         'fade' => $script['async_fade'],
-        'parent' => $script['async_parent'],
+        'container' => $script['async_container'],
         'dependencies' => $script['async_dependencies'],
         'dependents' => $script['async_dependents'],
         'queued' => FALSE,

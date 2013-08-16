@@ -107,8 +107,8 @@
             } catch (e) {
             }
           };
-          if (script.parent !== null) {
-            document.getElementById(script.parent).appendChild(s);
+          if (script.container !== null) {
+            $(script.container).append(s);
           } else {
             var x = document.getElementsByTagName('script')[0];
             x.parentNode.insertBefore(s, x);

@@ -46,6 +46,11 @@ effect will be applied universally to all elements defined in this way on a
 single page. The default delay is 1 second. This can be changed by editing the 
 conf variable "async_js_timeout".
 
+- Containers: Specify a container in which to append your script element. To do
+this, add "async_container" => ".jQuery #selector" to the options array in
+either drupal_add_js() or async_js_add_js(). Keep in mind that if your jQuery
+selector matches multiple elements, your script will be loaded multiple times.
+
 - Final callback: You may add a final callback function to be fired after all
 asynchronous scripts have been successfully loaded by editing the
 "async_js_final_callback" conf variable. Your callback function must exist in
