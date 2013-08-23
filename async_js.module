@@ -120,7 +120,7 @@ function async_js_js_alter(&$javascript) {
  *  An array of scripts as returned by async_js_add_js().
  *
  * @see async_js_js_alter()
- * @see asumc_js_add_js()
+ * @see async_js_add_js()
  */
 function _async_js_build_urls(array $scripts = array()) {
 
