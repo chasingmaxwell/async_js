@@ -33,7 +33,7 @@
       // Callback to be fired when all scripts are loaded.
       finalCallback: '',
 
-      // Provide delayed fadeIn effect for elements defiend in the fade array.
+      // Provide delayed fadeIn effect for elements defined in the fade array.
       delayFade: function(async_js) {
         async_js.fade.forEach(function(element, index, array) {
           if (index < 1) {
