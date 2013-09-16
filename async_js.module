@@ -177,7 +177,12 @@ function _async_js_build_urls(array $scripts = array()) {
  * @see async_js_add_js()
  */
 function _async_js_process_dependencies(array $scripts = array()) {
-  foreach ($scripts as $script) {
+  foreach ($scripts as $key => $script) {
+    // Make sure every script has an empty async_dependents array by default.
+    if (empty($script['async_dependents'])) {
+      $scripts[$key]['async_dependents'] = array();
+    }
+    // Create corresponding dependent references.
     if (!empty($script['async_dependencies'])) {
       foreach ($script['async_dependencies'] as $dependency) {
         $scripts[$dependency]['async_dependents'][] = $script['data'];
