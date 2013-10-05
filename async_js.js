@@ -5,6 +5,8 @@
 
 (function($) {
 
+  'use strict';
+
   $(window).load(function() {
 
     /**
@@ -12,8 +14,11 @@
      */
     if (!Array.prototype.forEach) {
       Array.prototype.forEach = function(fn, scope) {
-        for(var i = 0, len = this.length; i < len; ++i) {
-          fn.call(scope, this[i], i, this);
+        var i, len;
+        for(i = 0, len = this.length; i < len; ++i) {
+          if (i in this) {
+            fn.call(scope, this[i], i, this);
+          }
         }
       };
     }
@@ -35,6 +40,7 @@
 
       // Provide delayed fadeIn effect for elements defined in the fade array.
       delayFade: function(async_js) {
+        var groupFade;
         async_js.fade.forEach(function(element, index, array) {
           if (index < 1) {
             groupFade = $(element);
@@ -45,11 +51,23 @@
         groupFade.fadeIn();
       },
 
-      // Cycle through all defined scripts and load them.
+      // Cycle through all defined scripts and process them.
       loadScripts: function(async_js) {
+        var addFade = function(element, index, array) {
+          async_js.fade.push(element);
+        };
         for (var script in async_js.javascript) {
           if (typeof async_js.javascript[script].data !== 'undefined') {
+
+            // Keep track of total number of scripts.
             async_js.totalScripts++;
+
+            // If there are any elements to fade in connected with this script, keep track of them.
+            if (async_js.javascript[script].fade.length > 0) {
+              async_js.javascript[script].fade.forEach(addFade);
+            }
+
+            // Load the script
             async_js.loadScript(async_js, async_js.javascript[script]);
           }
         }
@@ -78,7 +96,7 @@
           s.src = script.data;
           s.onload = s.onreadystatechange = function() {
             var rs = this.readyState;
-            if (rs && rs != 'complete' && rs != 'loaded') {
+            if (rs && rs !== 'complete' && rs !== 'loaded') {
               return;
             }
             try{
@@ -100,7 +118,7 @@
               }
 
               // If all scripts have been loaded, fire the final callback.
-              if ($.isFunction(window[async_js.finalCallback]) && async_js.loadedScripts == async_js.totalScripts) {
+              if ($.isFunction(window[async_js.finalCallback]) && async_js.loadedScripts === async_js.totalScripts) {
                 window[async_js.finalCallback]();
               }
 
@@ -114,13 +132,6 @@
             x.parentNode.insertBefore(s, x);
           }
         })();
-
-        // If there are any elements to fade in connected with this script, keep track of them.
-        if (script.fade.length > 0) {
-          script.fade.forEach(function(element, index, array) {
-            async_js.fade.push(element);
-          });
-        }
       },
 
       dependenciesLoaded: function(async_js, script) {
