@@ -135,7 +135,7 @@
         return loaded;
       }
 
-    }, Drupal.settings.async_js);
+    }, drupalSettings.async_js);
 
     /**
      * Get to it!
