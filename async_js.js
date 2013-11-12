@@ -106,8 +106,12 @@
               script.loaded = true;
 
               // If we are supposed to fire a callback when this script loads, do it.
-              if (script.callback !== null && $.isFunction(window[script.callback])) {
-                window[script.callback]();
+              if (typeof script.callbacks == 'object') {
+                for (var i = 0, l = script.callbacks.length; i < l; i++) {
+                  if ($.isFunction(window[script.callbacks[i]])) {
+                    window[script.callbacks[i]]();
+                  }
+                }
               }
 
               // If the script has dependents, try to load them.
