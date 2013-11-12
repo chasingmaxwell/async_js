@@ -28,37 +28,49 @@ In addition to loading scripts asynchronously, this module includes the
 following functionality:
 
 - Dependencies: Specify dependencies at the individual script level. Simply add
-"async_dependencies" => array("path/to/script1.js", "path/to/script2.js")
-to the options array in either drupal_add_js() or async_js_add_js(). The path
-you use to reference the dependency must correspond exactly to the path used
-to actually load the dependency.
+the following key/value pair to the options array in either drupal_add_js() or
+async_js_add_js().
 
-- Callback functions: Specify a callback function to be fired once the script 
-has loaded. This can be done by adding "async_callback" => "your_function_name"
-to the options array in either drupal_add_js() or async_js_add_js(). The 
-function must exist in the global scope.
+  "async_dependencies" => array("path/to/script1.js", "path/to/script2.js")
+
+NOTE: The path you use to reference the dependency must correspond exactly to
+the path used to actually load the dependency.
+
+- Callback functions: Specify callback functions to be fired once the script 
+has loaded. This can be done by adding the following key/value pair to the
+options array in either drupal_add_js() or async_js_add_js(). 
+
+  "async_callback" => array("your_function_name", "another_function_name")
+
+NOTE: All callback functions must exist in the global scope.
 
 - Fade-in effect: When specifying a script to be loaded asynchronously, you can
-specify html elements to fade in after a delay and in unison. This can be done 
-by adding "async_fade" => array(".array", "#of", ".jQuery", "#selectors") to
-the options array in either drupal_add_js() or async_js_add_js(). The fade-in 
-effect will be applied universally to all elements defined in this way on a 
-single page. The default delay is 1 second. This can be changed by editing the 
-conf variable "async_js_timeout".
+specify html elements to fade in after a delay and in unison. This can be done
+by adding the following key/value pair to the options array in either
+drupal_add_js() or async_js_add_js().
+
+  "async_fade" => array(".array", "#of", ".jQuery", "#selectors")
+
+The fade-in effect will be applied universally to all elements defined in this
+way on a single page. The default delay is 1 second. This can be changed by
+editing the conf variable "async_js_timeout".
 
 - Containers: Specify a container in which to append your script element. To do
-this, add "async_container" => ".jQuery #selector" to the options array in
-either drupal_add_js() or async_js_add_js().
+this, add the following key/value pair to the options array in either
+drupal_add_js() or async_js_add_js().
+
+  "async_container" => ".jQuery #selector"
 
 - Final callback: You may add a final callback function to be fired after all
 asynchronous scripts have been successfully loaded by editing the
-"async_js_final_callback" conf variable. Your callback function must exist in
-the global scope.
+"async_js_final_callback" conf variable. NOTE: Your callback function must
+exist in the global scope.
 
 
 ### Similar modules
 
-- Async script shim is a similar module for Drupal 8. (https://drupal.org/project/async_script_shim)
+- Async script shim is a similar, though no longer supported, module for Drupal 8.
+(https://drupal.org/project/async_script_shim)
 
 - Script.JS uses the $script.js library. (https://drupal.org/project/scriptjs)
 
