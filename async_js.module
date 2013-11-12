@@ -196,7 +196,7 @@ function _async_js_process_dependencies(array $scripts = array()) {
         }
         else {
           unset($scripts[$key]);
-          drupal_set_message(t('The script, ' . $script['data'] . ' is dependent on ' . $dependency . ', which does not exist on this page.'), 'error');
+          drupal_set_message(t('The script, @script is dependent on @dependency, which does not exist on this page.', array('@script' => $script['data'], '@dependency' => $dependency)), 'error');
         }
       }
     }
