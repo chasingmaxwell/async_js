@@ -191,7 +191,13 @@ function _async_js_process_dependencies(array $scripts = array()) {
   foreach ($scripts_copy as $key => $script) {
     if (!empty($script['async_dependencies'])) {
       foreach ($script['async_dependencies'] as $dependency) {
-        $scripts[$dependency]['async_dependents'][] = $script['data'];
+        if (!empty($scripts[$dependency])) {
+          $scripts[$dependency]['async_dependents'][] = $script['data'];
+        }
+        else {
+          unset($scripts[$key]);
+          drupal_set_message(t('The script, @script is dependent on @dependency, which does not exist on this page.', array('@script' => $script['data'], '@dependency' => $dependency)), 'error');
+        }
       }
     }
   }
