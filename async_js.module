@@ -19,8 +19,9 @@
  *      before the current script. The value of each item in the array must
  *      correspond exactly to the $src parameter originally used to load the
  *      dependency.
- *  -  'async_callback': The name of a javascript function in the global scope
- *      which will be run once this particular script is finished loading.
+ *  -  'async_callback': The name of a javascript function, or an array of them,
+ *      in the global scope which will be run once this particular script is
+ *      finished loading.
  *  -  'async_fade': An array of jQuery selectors which correspond to elements
  *      on the page to fadeIn after a specified timeout and in unison. The
  *      fadeIn effect will be applied universally to all elements defined in
@@ -41,7 +42,7 @@ function async_js_add_js($src = NULL, array $options = array()) {
     $options += array(
       'type' => 'file',
       'async_dependencies' => array(),
-      'async_callback' => NULL,
+      'async_callback' => array(),
       'async_fade' => array(),
       'async_container' => NULL,
       'cache' => TRUE,
@@ -89,7 +90,8 @@ function async_js_js_alter(&$javascript) {
       // Prep $script for JavaScript.
       $script = array(
         'data' => $script['data'],
-        'callback' => $script['async_callback'],
+        // Use an array of callbacks, even if only given a string.
+        'callbacks' => (array) $script['async_callback'],
         'fade' => $script['async_fade'],
         'container' => $script['async_container'],
         'dependencies' => $script['async_dependencies'],
