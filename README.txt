@@ -69,7 +69,7 @@ exist in the global scope.
 
 ### Similar modules
 
-- Async script shim is a similar, minimally maintained, module for Drupal 8.
+- Async script shim is a similar, minimally maintained module for Drupal 8.
 (https://drupal.org/project/async_script_shim)
 
 - Script.JS uses the $script.js library. (https://drupal.org/project/scriptjs)
